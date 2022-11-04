@@ -47,7 +47,7 @@ router.post('/', (req, res) => {
   Product.create(req.body)
     .then((product) => {
       // if there's product tags, we need to create pairings to bulk create in the ProductTag model
-      if (req.body.tagIds.length) {
+      if (req.body.tagIds && req.body.tagIds.length) {
         const productTagIdArr = req.body.tagIds.map((tag_id) => {
           return {
             product_id: product.id,
@@ -68,18 +68,21 @@ router.post('/', (req, res) => {
 
 // update product
 router.put('/:id', (req, res) => {
+  // console.log("productput===========",req.body,req.params)
   // update product data
   Product.update(req.body, {
     where: {
-      id: req.params.id,
+      id: Number(req.params.id),
     },
   })
     .then((product) => {
+      // console.log("foundproduct ++++++",product)
       // find all associated tags from ProductTag
-      return ProductTag.findAll({ where: { product_id: req.params.id } });
+      return ProductTag.findAll({ where: { product_id: Number(req.params.id) } });
     })
     .then((productTags) => {
       // get list of current tag_ids
+      // console.log("producttags=>=>=>",productTags)
       const productTagIds = productTags.map(({ tag_id }) => tag_id);
       // create filtered list of new tag_ids
       const newProductTags = req.body.tagIds
